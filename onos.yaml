@@ -1,0 +1,48 @@
+version: "3.8"
+
+services:
+  onos:
+    image: "onosproject/onos"
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+    ports:
+      - "1101:8101"
+      - "1653:6653"
+      - "1181:8181"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - hyun_overlay_network
+
+  create_ct_worker1:
+    image: alpine
+    command: tail -f /dev/null  
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.name == worker01
+    networks:
+      - hyun_overlay_network
+
+  create_ct_worker3:
+    image: alpine
+    command: tail -f /dev/null  
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.name == worker03
+    networks:
+      - hyun_overlay_network
+
+networks:
+  hyun_overlay_network:
+    driver: overlay
+    ipam:
+        driver: default
+        config:
+            - subnet: 172.25.0.0/24
